@@ -50,6 +50,7 @@ contract D21 is IVoteD21 {
         // Require that there is still time to add voters
         require(this.getRemainingTime() > 0, "No time left to vote!");
 
+
         address[] memory votedOn;  
 
         VoterData memory voter = VoterData(2,1,1,votedOn);
@@ -69,6 +70,9 @@ contract D21 is IVoteD21 {
         VoterData storage voterData = voterRegistry[msg.sender];
 
         //Perform checks:
+
+        // Require that subject is added
+        require(this.getSubject(addr).flag > 0, "Subject not added");
 
         // Require that there is still time left to vote
         require(this.getRemainingTime() > 0, "No time left to vote!");
@@ -91,6 +95,9 @@ contract D21 is IVoteD21 {
         VoterData storage voterData = voterRegistry[msg.sender];
 
         // Perform checks:
+
+        // Require that subject is added
+        require(this.getSubject(addr).flag > 0, "Subject not added");
 
         // Require that there is time left to vote
         require(this.getRemainingTime() > 0, "No time left to vote!");
@@ -156,7 +163,6 @@ contract D21 is IVoteD21 {
     }
 
     function quickSort(Subject[] memory arr, int left, int right) private pure  {
-        Subject[] memory sorted = arr;
 
         int i = left;
         int j = right;

@@ -3,6 +3,40 @@ from brownie import accounts, chain
 import brownie
 
 
+def test_get_subject():
+    d21 = deploy_D21_with_subjects()
+    subject_name = 'Party of Freedom'
+
+    subject = d21.getSubject(accounts[0], {'from':accounts[0]})
+
+    assert subject_name == subject[0]
+
+def test_add_voter_with_owner():
+    d21 = deploy_D21()
+    owner = accounts[0]
+
+    d21.addVoter(accounts[1],{'from' : owner})
+    d21.addSubject('Test Party',{'from':owner})
+
+    d21.votePositive(owner,{'from':accounts[1]})
+
+    #Check if number of votes equals 1
+    assert d21.getSubject(owner,{'from':owner})[1] == 1
+
+def test_add_voter_without_owner():
+    d21 = deploy_D21()
+    user = accounts[1]
+
+    with brownie.reverts('Only the owner can add new voters'):
+        d21.addVoter(accounts[1],{'from' : user})
+
+def test_add_voter_allready_added():
+    d21 = deploy_D21()
+    owner = accounts[0]
+
+    with brownie.reverts('Voter allready added'):
+        d21.addVoter(accounts[1],{'from' : owner})
+        d21.addVoter(accounts[1],{'from' : owner})
 
 def test_add_voter_with_owner():
     #Arrange
@@ -17,6 +51,23 @@ def test_add_voter_with_owner():
     #Assert: To assert we will now check if the account is able to note
 
     assert 1 == 1
+
+def test_vote_positive_without_voter_registered():
+    d21 = deploy_D21()
+    owner = accounts[0]
+
+    d21.addSubject('Test Party',{'from':owner})
+
+    with brownie.reverts("Voter has no positive votes left or isn't registered"):
+        d21.votePositive(owner,{'from':accounts[1]})
+
+def test_vote_on_unregistered_subject():
+    d21 = deploy_D21()
+    owner = accounts[0]
+    d21.addVoter(accounts[1],{'from':owner})
+
+    with brownie.reverts('Subject not added'):
+        d21.votePositive(owner,{'from':accounts[1]})
 
 def test_vote_positive_on_subject():
     #Arange
